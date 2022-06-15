@@ -3,8 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	a := 2
-	b := &a
-	*b = 20
-	fmt.Println(a, *b)
+	names := []string{"yun", "kim", "park"}
+	names = append(names, "jeong")
+	fmt.Println(names)
 }

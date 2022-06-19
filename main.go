@@ -23,16 +23,21 @@ var baseURL string = "https://kr.indeed.com/jobs?q=python&limit=50"
 
 func main() {
 	var jobs []extractedJob
+	c := make(chan []extractedJob)
 
-	for i := 0; i < getPages(); i++ {
-		jobs = append(jobs, getPage(i)...)
+	totalPages := getPages()
+	for i := 0; i < totalPages; i++ {
+		go getPage(i, c)
+	}
+	for i := 0; i < totalPages; i++ {
+		jobs = append(jobs, <-c...)
 	}
 
 	writeJobs(jobs)
 	fmt.Println("Done, extracted", len(jobs))
 }
 
-func getPage(page int) []extractedJob {
+func getPage(page int, mainC chan []extractedJob) {
 	var jobs []extractedJob
 	c := make(chan extractedJob)
 
@@ -54,8 +59,7 @@ func getPage(page int) []extractedJob {
 	for i := 0; i < searchCards.Length(); i++ {
 		jobs = append(jobs, <-c)
 	}
-
-	return jobs
+	mainC <- jobs
 }
 
 func getPages() int {

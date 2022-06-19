@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -27,7 +29,8 @@ func main() {
 		jobs = append(jobs, getPage(i)...)
 	}
 
-	fmt.Println(jobs)
+	writeJobs(jobs)
+	fmt.Println("Done, extracted", len(jobs))
 }
 
 func getPage(page int) []extractedJob {
@@ -95,4 +98,21 @@ func extractJob(card *goquery.Selection) extractedJob {
 
 func cleanString(str string) string {
 	return strings.Join(strings.Fields(strings.TrimSpace(str)), " ")
+}
+
+func writeJobs(jobs []extractedJob) {
+	file, err := os.Create("jobs.csv")
+	checkErr(err)
+
+	w := csv.NewWriter(file)
+	defer w.Flush()
+
+	headers := []string{"ID", "Title", "Company", "Location"}
+	wErr := w.Write(headers)
+	checkErr(wErr)
+
+	for _, job := range jobs {
+		jwErr := w.Write([]string{"https://kr.indeed.com/viewjob?jk=" + job.id, job.title, job.company, job.location})
+		checkErr(jwErr)
+	}
 }

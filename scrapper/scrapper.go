@@ -93,9 +93,9 @@ func checkCode(res *http.Response) {
 
 func extractJob(card *goquery.Selection, c chan<- extractedJob) {
 	id, _ := card.Find(".jobTitle>a").Attr("data-jk")
-	title := card.Find(".jobTitle>a").Text()
-	company := card.Find(".companyName").Text()
-	location := card.Find(".companyLocation").Text()
+	title := CleanString(card.Find(".jobTitle>a").Text())
+	company := CleanString(card.Find(".companyName").Text())
+	location := CleanString(card.Find(".companyLocation").Text())
 	c <- extractedJob{
 		id:       id,
 		title:    title,
@@ -104,7 +104,7 @@ func extractJob(card *goquery.Selection, c chan<- extractedJob) {
 	}
 }
 
-func cleanString(str string) string {
+func CleanString(str string) string {
 	return strings.Join(strings.Fields(strings.TrimSpace(str)), " ")
 }
 
